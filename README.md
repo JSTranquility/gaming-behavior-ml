@@ -28,6 +28,12 @@ pip install -r config/requirements.txt
 python scripts/main.py --train
 ```
 
+If `online_gaming_behavior_dataset.csv` is not present in the project root, the training script downloads the dataset from KaggleHub:
+
+```text
+rabieelkharoua/predict-online-gaming-behavior-dataset
+```
+
 ### 3. Start the server
 
 ```bash
@@ -166,6 +172,71 @@ curl -X POST http://127.0.0.1:8000/predict \
 
 ```bash
 python -m pytest tests/ -v
+```
+
+## Deployment
+
+Esta API se puede subir como un servicio web Python. Antes de desplegar, asegúrate de tener estos archivos:
+
+```text
+models/engagement_model.joblib
+models/engagement_model_metadata.joblib
+```
+
+La API los carga al iniciar. Si no existen, el servidor fallará durante `startup`.
+
+Puedes generarlos con:
+
+```bash
+python scripts/main.py --train
+```
+
+Si el CSV no está en el repositorio, el entrenamiento descarga el dataset desde KaggleHub.
+
+### Render
+
+1. Sube el proyecto a GitHub.
+2. En Render, crea un **Web Service** desde el repositorio.
+3. Usa estos comandos:
+
+```bash
+pip install -r requirements.txt
+uvicorn src.api:app --host 0.0.0.0 --port $PORT
+```
+
+También puedes usar el archivo `render.yaml` incluido para crear el servicio como Blueprint.
+
+Variables recomendadas:
+
+```bash
+GAMING_ML_HOST=0.0.0.0
+GAMING_ML_LOG_LEVEL=INFO
+GAMING_ML_RATE_LIMIT=30/minute
+GAMING_ML_API_KEYS=your-production-key
+GAMING_ML_CORS_ORIGINS=["https://your-frontend-domain.com"]
+```
+
+### Railway / Heroku-style platforms
+
+El `Procfile` incluido expone el proceso web:
+
+```bash
+web: uvicorn src.api:app --host 0.0.0.0 --port $PORT
+```
+
+### Docker
+
+Puedes construir y ejecutar la API con:
+
+```bash
+docker build -t playalytics-api .
+docker run -p 8000:8000 playalytics-api
+```
+
+Para plataformas que inyectan `PORT`, cambia el comando de arranque a:
+
+```bash
+uvicorn src.api:app --host 0.0.0.0 --port $PORT
 ```
 
 ## Tech Stack

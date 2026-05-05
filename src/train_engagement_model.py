@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import joblib
+import kagglehub
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -21,11 +22,30 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = ROOT / "online_gaming_behavior_dataset.csv"
+KAGGLE_DATASET = "rabieelkharoua/predict-online-gaming-behavior-dataset"
 MODELS_DIR = ROOT / "models"
 REPORTS_DIR = ROOT / "reports"
 TARGET = "EngagementLevel"
 ID_COLUMN = "PlayerID"
 RANDOM_STATE = 42
+
+
+def resolve_data_path() -> Path:
+    if DATA_PATH.exists():
+        return DATA_PATH
+
+    print(f"Dataset no encontrado en {DATA_PATH}. Descargando desde KaggleHub...")
+    dataset_dir = Path(kagglehub.dataset_download(KAGGLE_DATASET))
+    csv_files = sorted(dataset_dir.glob("*.csv"))
+    if not csv_files:
+        raise FileNotFoundError(
+            f"No se encontro ningun archivo CSV en el dataset descargado: {dataset_dir}"
+        )
+
+    selected_csv = csv_files[0]
+    print(f"Dataset descargado en: {dataset_dir}")
+    print(f"Usando archivo CSV: {selected_csv}")
+    return selected_csv
 
 
 def build_preprocessor(features: pd.DataFrame) -> ColumnTransformer:
@@ -106,7 +126,8 @@ def main() -> None:
     MODELS_DIR.mkdir(exist_ok=True)
     REPORTS_DIR.mkdir(exist_ok=True)
 
-    df = pd.read_csv(DATA_PATH)
+    data_path = resolve_data_path()
+    df = pd.read_csv(data_path)
     features = df.drop(columns=[TARGET, ID_COLUMN])
     target = df[TARGET]
 
