@@ -1,0 +1,12 @@
+pandas
+scikit-learn
+joblib
+matplotlib
+seaborn
+fastapi
+uvicorn
+pydantic-settings
+slowapi
+prometheus-client
+pytest
+httpx

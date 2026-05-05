@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaming Behavior ML - Predicción de Engagement</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: white;
+            color: black;
+            line-height: 1.6;
+        }
+
+        nav {
+            background: #f8f9fa;
+            padding: 1rem 0;
+            border-bottom: 1px solid #dee2e6;
+            position: sticky;
+            top: 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: black;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: black;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links a:hover {
+            background-color: #e9ecef;
+        }
+
+        .nav-links a.active {
+            background-color: #dee2e6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #6c757d;
+            margin-bottom: 2rem;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .features {
+            padding: 4rem 0;
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: #6c757d;
+        }
+
+        .prediction-section {
+            padding: 4rem 0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .prediction-container {
+            background: #f8f9fa;
+            padding: 3rem;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .prediction-container h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #495057;
+        }
+
+        .form-input,
+        .form-select {
+            padding: 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .results {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: #e9ecef;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .prediction-result {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .prediction-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+
+        .prediction-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .probabilities {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .probability-item {
+            display: grid;
+            grid-template-columns: 80px 1fr 60px;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .probability-label {
+            font-weight: bold;
+        }
+
+        .probability-bar {
+            height: 8px;
+            background: #dee2e6;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .probability-fill {
+            height: 100%;
+            background: #007bff;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .probability-value {
+            text-align: right;
+            font-weight: bold;
+            color: #6c757d;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        footer {
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links a {
+            color: #6c757d;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: #007bff;
+        }
+
+        .footer-text {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .nav-status {
+                display: none;
+            }
+
+            .hero {
+                padding: 2rem 1rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .features {
+                padding: 2rem 1rem;
+            }
+
+            .prediction-section {
+                padding: 2rem 1rem;
+            }
+
+            .prediction-container {
+                padding: 2rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="nav-brand">Gaming Behavior ML</a>
+            <ul class="nav-links">
+                <li><a href="#home" class="active">Inicio</a></li>
+                <li><a href="#features">Características</a></li>
+                <li><a href="#predict">Predecir</a></li>
+                <li><a href="/docs" target="_blank">Documentación</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero" id="home">
+        <div class="container">
+            <h1>Predicción de Engagement Gamer</h1>
+            <p>Descubre el nivel de engagement de los jugadores usando Machine Learning avanzado</p>
+            <div class="hero-buttons">
+                <a href="#predict" class="btn btn-primary">Comenzar Predicción</a>
+                <a href="/docs" class="btn btn-secondary">Ver Documentación</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="container">
+            <h2>Características Principales</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>Alta Precisión</h3>
+                    <p>Modelo Random Forest con ~90% de accuracy en predicciones de engagement</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Respuesta Rápida</h3>
+                    <p>Predicciones en tiempo real con procesamiento optimizado</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Fácil Integración</h3>
+                    <p>API RESTful con documentación completa y ejemplos</p>
+                </div>
+                <div class="feature-card">
+                    <h3>3 Niveles</h3>
+                    <p>Clasificación en Low, Medium y High engagement</p>
+                </div>
+                <div class="feature-card">
+                    <h3>CORS Habilitado</h3>
+                    <p>Compatible con aplicaciones web y móviles</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Probabilidades</h3>
+                    <p>Proporciona confianza para cada nivel de engagement</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="prediction-section" id="predict">
+        <div class="prediction-container">
+            <h2>Predecir Engagement</h2>
+            
+            <div class="message" id="message"></div>
+            
+            <form id="predictionForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="Age">Edad</label>
+                        <input type="number" id="Age" name="Age" class="form-input" min="10" max="100" value="22" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="Gender">Género</label>
+                        <select id="Gender" name="Gender" class="form-select" required>
+                            <option value="Male">Masculino</option>
+                            <option value="Female" selected>Femenino</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="Location">Ubicación</label>
+                        <select id="Location" name="Location" class="form-select" required>
+                            <option value="USA" selected>USA</option>
+                            <option value="Europe">Europa</option>
+                            <option value="Asia">Asia</option>
+                            <option value="Other">Otro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="GameGenre">Género de Juego</label>
+                        <select id="GameGenre" name="GameGenre" class="form-select" required>
+                            <option value="Action">Acción</option>
+                            <option value="RPG" selected>RPG</option>
+                            <option value="Simulation">Simulación</option>
+                            <option value="Sports">Deportes</option>
+                            <option value="Strategy">Estrategia</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="PlayTimeHours">Horas Jugadas</label>
+                        <input type="number" id="PlayTimeHours" name="PlayTimeHours" class="form-input" min="0" step="0.1" value="14.5" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="InGamePurchases">Compras en Juego</label>
+                        <select id="InGamePurchases" name="InGamePurchases" class="form-select" required>
+                            <option value="0">No</option>
+                            <option value="1" selected>Sí</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="GameDifficulty">Dificultad</label>
+                        <select id="GameDifficulty" name="GameDifficulty" class="form-select" required>
+                            <option value="Easy">Fácil</option>
+                            <option value="Medium">Medio</option>
+                            <option value="Hard" selected>Difícil</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="SessionsPerWeek">Sesiones por Semana</label>
+                        <input type="number" id="SessionsPerWeek" name="SessionsPerWeek" class="form-input" min="0" value="15" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="AvgSessionDurationMinutes">Duración Promedio (min)</label>
+                        <input type="number" id="AvgSessionDurationMinutes" name="AvgSessionDurationMinutes" class="form-input" min="0" value="135" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="PlayerLevel">Nivel del Jugador</label>
+                        <input type="number" id="PlayerLevel" name="PlayerLevel" class="form-input" min="1" value="72" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="AchievementsUnlocked">Logros Desbloqueados</label>
+                        <input type="number" id="AchievementsUnlocked" name="AchievementsUnlocked" class="form-input" min="0" value="38" required>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Predecir Engagement</button>
+                    <button type="button" class="btn btn-secondary" id="resetBtn">Restablecer Valores</button>
+                </div>
+            </form>
+            
+            <div class="results" id="results">
+                <div class="prediction-result">
+                    <div class="prediction-label">Predicción</div>
+                    <div class="prediction-value" id="predictionValue">-</div>
+                </div>
+                <div class="probabilities" id="probabilities"></div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="/docs" target="_blank">Documentación API</a>
+                <a href="https://github.com">GitHub</a>
+            </div>
+            <p class="footer-text">© 2026 Gaming Behavior Machine Learning. Desarrollado con FastAPI, Scikit-learn.</p>
+        </div>
+    </footer>
+
+    <script>
+        const API_BASE = "";
+        
+        const form = document.getElementById('predictionForm');
+        const message = document.getElementById('message');
+        const results = document.getElementById('results');
+        const predictionValue = document.getElementById('predictionValue');
+        const probabilities = document.getElementById('probabilities');
+        const resetBtn = document.getElementById('resetBtn');
+        
+        const examplePlayer = {
+            Age: 22,
+            Gender: "Female",
+            Location: "USA",
+            GameGenre: "RPG",
+            PlayTimeHours: 14.5,
+            InGamePurchases: 1,
+            GameDifficulty: "Hard",
+            SessionsPerWeek: 15,
+            AvgSessionDurationMinutes: 135,
+            PlayerLevel: 72,
+            AchievementsUnlocked: 38,
+        };
+        
+        function showMessage(text, type = 'info') {
+            message.textContent = text;
+            message.className = `message show ${type}`;
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    message.classList.remove('show');
+                }, 3000);
+            }
+        }
+        
+        function hideMessage() {
+            message.classList.remove('show');
+        }
+        
+        function fillForm(values) {
+            Object.entries(values).forEach(([key, value]) => {
+                const input = form.elements[key];
+                if (input) input.value = value;
+            });
+        }
+        
+        function getFormData() {
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData.entries());
+            
+            const numericFields = [
+                "Age", "PlayTimeHours",
+                "SessionsPerWeek", "AvgSessionDurationMinutes", 
+                "PlayerLevel", "AchievementsUnlocked"
+            ];
+            
+            numericFields.forEach(field => {
+                payload[field] = Number(payload[field]);
+            });
+
+            payload["InGamePurchases"] = payload["InGamePurchases"] === "1";
+            
+            return payload;
+        }
+        
+        function renderProbabilities(probData) {
+            const order = ["Low", "Medium", "High"];
+            probabilities.innerHTML = '';
+            
+            order.forEach(label => {
+                const probability = probData[label] || 0;
+                const percent = Math.round(probability * 1000) / 10;
+                
+                const item = document.createElement('div');
+                item.className = 'probability-item';
+                item.innerHTML = `
+                    <div class="probability-label">${label}</div>
+                    <div class="probability-bar">
+                        <div class="probability-fill" style="width: ${percent}%"></div>
+                    </div>
+                    <div class="probability-value">${percent.toFixed(1)}%</div>
+                `;
+                probabilities.appendChild(item);
+            });
+        }
+        
+        
+        async function predictEngagement(playerData) {
+            try {
+                const response = await fetch(`${API_BASE}/predict`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(playerData),
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                throw error;
+            }
+        }
+        
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            hideMessage();
+            
+            showMessage('Calculando predicción...', 'info');
+            
+            try {
+                const playerData = getFormData();
+                const result = await predictEngagement(playerData);
+                
+                predictionValue.textContent = result.prediction;
+                renderProbabilities(result.probabilities);
+                results.classList.add('show');
+                
+                showMessage('Predicción completada exitosamente', 'success');
+            } catch (error) {
+                showMessage(
+                    'Error al conectar con la API. Asegúrate de que el servidor esté activo.',
+                    'error'
+                );
+                console.error('Prediction error:', error);
+            }
+        });
+        
+        resetBtn.addEventListener('click', () => {
+            fillForm(examplePlayer);
+            results.classList.remove('show');
+            hideMessage();
+        });
+        
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section[id]');
+            const scrollY = window.pageYOffset;
+            
+            sections.forEach(section => {
+                const sectionHeight = section.offsetHeight;
+                const sectionTop = section.offsetTop - 100;
+                const sectionId = section.getAttribute('id');
+                
+                if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+                    document.querySelectorAll('.nav-links a').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    
+                    const activeLink = document.querySelector(`.nav-links a[href="#${sectionId}"]`);
+                    if (activeLink) {
+                        activeLink.classList.add('active');
+                    }
+                }
+            });
+        });
+        
+        fillForm(examplePlayer);
+    </script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaming Behavior ML - Documentación</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 { border-bottom: 2px solid #007bff; padding-bottom: 0.5rem; }
+        h2 { border-bottom: 1px solid #dee2e6; padding-bottom: 0.3rem; margin-top: 2rem; }
+        code {
+            background: #f4f4f4;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.9rem;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 0.5rem;
+            text-align: left;
+        }
+        th { background: #f8f9fa; }
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .badge-get { background: #61affe; color: white; }
+        .badge-post { background: #49cc90; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Gaming Behavior ML - Documentación</h1>
+    <p>API para predecir el nivel de engagement de jugadores usando Machine Learning.</p>
+
+    <h2>Endpoints</h2>
+    <table>
+        <tr><th>Método</th><th>Endpoint</th><th>Descripción</th></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td><code>/api/info</code></td><td>Información de la API</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td><code>/health</code></td><td>Verificar estado del servicio</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td><code>/metrics</code></td><td>Métricas de Prometheus</td></tr>
+        <tr><td><span class="badge badge-get">GET</span></td><td><code>/docs</code></td><td>Swagger UI interactivo</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td><code>/predict</code></td><td>Predecir engagement de un jugador</td></tr>
+        <tr><td><span class="badge badge-post">POST</span></td><td><code>/predict/batch</code></td><td>Predecir múltiples jugadores (máx 100)</td></tr>
+    </table>
+
+    <h2>Ejemplo de Predicción</h2>
+    <pre><code>POST /predict
+
+{
+  "Age": 22,
+  "Gender": "Female",
+  "Location": "USA",
+  "GameGenre": "RPG",
+  "PlayTimeHours": 14.5,
+  "InGamePurchases": true,
+  "GameDifficulty": "Hard",
+  "SessionsPerWeek": 15,
+  "AvgSessionDurationMinutes": 135,
+  "PlayerLevel": 72,
+  "AchievementsUnlocked": 38
+}</code></pre>
+
+    <h2>Respuesta</h2>
+    <pre><code>{
+  "prediction": "High",
+  "probabilities": {
+    "Low": 0.028,
+    "Medium": 0.072,
+    "High": 0.9
+  }
+}</code></pre>
+
+    <h2>Modelo</h2>
+    <p><strong>Algoritmo:</strong> Random Forest Classifier</p>
+    <p><strong>Accuracy:</strong> ~90%</p>
+    <p><strong>Clases:</strong> Low, Medium, High</p>
+
+    <h2>Tecnologías</h2>
+    <p>FastAPI, Scikit-learn, Pandas, Pydantic, SlowAPI, Prometheus</p>
+
+    <p><a href="/">← Volver al inicio</a></p>
+</body>
+</html>
