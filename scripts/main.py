@@ -8,6 +8,7 @@ import argparse
 import sys
 from pathlib import Path
 
+# Agregar el root del proyecto al path para poder importar los módulos
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -17,6 +18,7 @@ from src.predict_engagement import main as predict_main
 
 
 def menu_interactivo():
+    """Muestra un menú interactivo para elegir qué hacer"""
     print("\n" + "="*50)
     print("GAMING BEHAVIOR MACHINE LEARNING")
     print("="*50)
@@ -40,6 +42,7 @@ def menu_interactivo():
 
 
 def entrenar_modelo():
+    """Ejecuta el entrenamiento del modelo"""
     print("\nIniciando entrenamiento del modelo...")
     print("-" * 40)
     try:
@@ -52,6 +55,7 @@ def entrenar_modelo():
 
 
 def hacer_prediccion():
+    """Ejecuta una predicción de ejemplo"""
     print("\nRealizando predicción con jugador de ejemplo...")
     print("-" * 50)
     try:
@@ -65,6 +69,7 @@ def hacer_prediccion():
 
 
 def iniciar_api():
+    """Inicia el servidor API FastAPI"""
     import sys
     
     from src.config import settings
@@ -105,14 +110,17 @@ def iniciar_api():
 
 
 def pipeline_completo():
+    """Ejecuta entrenamiento y predicción en secuencia"""
     print("\nEjecutando pipeline completo (entrenamiento + predicción)...")
     print("-" * 60)
     
+    # Primero entrenar
     if not entrenar_modelo():
         return False
     
     print("\n" + "="*60)
     
+    # Luego predecir
     if not hacer_prediccion():
         return False
     
@@ -121,6 +129,7 @@ def pipeline_completo():
 
 
 def main():
+    """Función principal del script"""
     parser = argparse.ArgumentParser(
         description="Main script para Gaming Behavior Machine Learning",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -145,6 +154,7 @@ Ejemplos de uso:
     
     args = parser.parse_args()
     
+    # Si no se pasaron argumentos, mostrar menú interactivo
     if not any([args.train, args.predict, args.pipeline, args.api]):
         opcion = menu_interactivo()
         
@@ -160,6 +170,7 @@ Ejemplos de uso:
             print("Adiós!")
             return
     else:
+        # Ejecutar según los argumentos pasados
         if args.api:
             iniciar_api()
         elif args.pipeline:
